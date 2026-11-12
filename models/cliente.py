@@ -3,3 +3,4 @@ class Cliente:
         self.id = id
         self.nome = nome
         self.telefone = telefone 
+

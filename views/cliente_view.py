@@ -22,21 +22,21 @@ class ClienteView(ctk.CTk):
         self.txt_tel = ctk.CTkEntry(self, width=250, placeholder_text="(00) 0000-0000")
         self.txt_tel.pack(pady=5)
 
-        self.bnt_salvar = ctk.CTkButton(self, text="Salvar Cadastro", command=self.clicou_no_botao)
-        self.bin_salvar.pack(pady=20)
+        self.btn_salvar = ctk.CTkButton(self, text="Salvar Cadastro", command=self.clicou_no_botao)
+        self.btn_salvar.pack(pady=20)
 
-def clicou_no_botao(self):
-    nome = self.txt_nome.get()
-    telefone = self.txt_tel.get()
+    def clicou_no_botao(self):
+       nome = self.txt_nome.get()
+       telefone = self.txt_tel.get()
 
-    try:
-        self.controller.cadastrar_novo_cliente(nome, telefone)
-        messagebox.showinfo("sucesso!", "Cliente Cadastrado no banco da barbearia!")
+       try:
+          self.controller.cadastrar_novo_cliente(nome, telefone)
+          messagebox.showinfo("sucesso!", "Cliente Cadastrado no banco da barbearia!")
 
-        self.txt_nome.delete(0, 'end')
-        self.txt_tel.delete(0, 'end')
+          self.txt_nome.delete(0, 'end')
+          self.txt_tel.delete(0, 'end')
 
-    except ValueError as erro_validacao:
-        messagebox.showwarning("aviso", str(erro_validacao))
-    except Exception as erro_banco:
-        messagebox.showerror("erro", f"não consegui conectar ao MySQL: {str(erro_banco)}")
+       except ValueError as erro_validacao:
+           messagebox.showwarning("aviso", str(erro_validacao))
+       except Exception as erro_banco:
+           messagebox.showerror("erro", f"não consegui conectar ao MySQL: {str(erro_banco)}")
