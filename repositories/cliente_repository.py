@@ -1,6 +1,5 @@
 import mysql.connector
 from database.conexao import conectar
-from models.cliente import Cliente
 
 class ClienteRepository:
 
