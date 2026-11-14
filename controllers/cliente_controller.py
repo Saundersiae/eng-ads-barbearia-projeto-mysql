@@ -14,7 +14,10 @@ class ClienteController:
             raise ValueError("Preencha todos os campos!")
 
         if not str(servicos_id).isdigit():
-            raise ValueError("Selecione um serviço válido!")
+            raise ValueError("Selecione um ID de serviçoválido!")
+        
+        if not self.repository.verificar_servico(int(servicos_id)):
+           raise ValueError("Serviço não encontrado!")
 
         novo_cliente = Cliente(
             nome=nome,
@@ -34,13 +37,16 @@ class ClienteController:
         # alterar dados dosclientes
 
         if not str(id).isdigit():
-            raise ValueError("Informe um ID válido!")
+            raise ValueError("Informe um ID de cliente válido!")
 
         if not nome.strip() or not telefone.strip():
             raise ValueError("Preencha todos os campos!")
 
         if not str(servicos_id).isdigit():
-            raise ValueError("Selecione um serviço válido!")
+            raise ValueError("Selecione um ID de serviço válido!")
+
+        if not self.repository.verificar_servico(int(servicos_id)):
+            raise ValueError("Serviço não encontrado!")
 
         return self.repository.alterar_dados(
             int(id), nome, telefone, int(servicos_id)
@@ -49,6 +55,6 @@ class ClienteController:
     def excluir_cliente(self, id):
         # excluir clientes
         if not str(id).isdigit():
-            raise ValueError("Informe um ID válido!")
+            raise ValueError("Informe um ID de cliente válido!")
 
         return self.repository.excluir_cliente(int(id))
