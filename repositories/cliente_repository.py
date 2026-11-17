@@ -22,7 +22,6 @@ class ClienteRepository:
             if conexao:
                  conexao.rollback()
             raise erro
-        
 
         finally:
            if cursor:
@@ -113,3 +112,29 @@ class ClienteRepository:
 
         if conexao:
             conexao.close()
+
+
+    def verificar_servico(self, servicos_id):
+       conexao = None
+       cursor = None
+
+       try:
+          conexao = conectar()
+          cursor = conexao.cursor()
+
+          sql = "SELECT id FROM servicos WHERE id = %s"
+          cursor.execute(sql, (servicos_id,))
+
+          resultado = cursor.fetchone()
+
+          return resultado is not None
+
+       except mysql.connector.Error as erro:
+          raise erro
+
+       finally:
+          if cursor:
+              cursor.close()
+
+          if conexao:
+             conexao.close()
