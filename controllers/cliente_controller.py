@@ -14,7 +14,7 @@ class ClienteController:
             raise ValueError("Preencha todos os campos!")
 
         if not str(servicos_id).isdigit():
-            raise ValueError("Selecione um ID de serviçoválido!")
+            raise ValueError("Selecione um ID de serviço válido!")
         
         if not self.repository.verificar_servico(int(servicos_id)):
            raise ValueError("Serviço não encontrado!")
