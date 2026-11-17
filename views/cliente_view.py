@@ -1,42 +1,149 @@
+
 import customtkinter as ctk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from controllers.cliente_controller import ClienteController
 
-ctk.set_appearance_mode("dark")
 
 class ClienteView(ctk.CTk):
     def __init__(self):
         super().__init__()
+
         self.controller = ClienteController()
 
-        self.title("Barbearia - Cadastro de Clientes")
-        self.geometry("400x350")
+        self.title("Gerenciamento de Clientes")
+        self.geometry("800x600")
 
-        self.lbl_nome = ctk.CTkLabel(self, text="Nome do Cliente:")
-        self.lbl_nome.pack(pady=5)
-        self.txt_nome = ctk.CTkEntry(self, width=250, placeholder_text="Digite o nome completo")
-        self.txt_nome.pack(pady=5)
+        self.criar_tela()
+        self.listar_clientes()
 
-        self.lbl_tel = ctk.CTkLabel(self, text="Telefone:")
-        self.lbl_tel.pack(pady=5)
-        self.txt_tel = ctk.CTkEntry(self, width=250, placeholder_text="(00) 0000-0000")
-        self.txt_tel.pack(pady=5)
+    def criar_tela(self):
+        ctk.CTkLabel(self, text="Clientes", font=("Arial", 22)).pack(pady=10)
 
-        self.btn_salvar = ctk.CTkButton(self, text="Salvar Cadastro", command=self.clicou_no_botao)
-        self.btn_salvar.pack(pady=20)
+        ctk.CTkLabel(self, text="Nome:").pack()
+        self.nome = ctk.CTkEntry(self, width=250)
+        self.nome.pack(pady=5)
 
-    def clicou_no_botao(self):
-       nome = self.txt_nome.get()
-       telefone = self.txt_tel.get()
+        ctk.CTkLabel(self, text="Telefone:").pack()
+        self.telefone = ctk.CTkEntry(self, width=250)
+        self.telefone.pack(pady=5)
 
-       try:
-          self.controller.cadastrar_novo_cliente(nome, telefone, servicos_id=1)
-          messagebox.showinfo("sucesso!", "Cliente Cadastrado no banco da barbearia!")
+        ctk.CTkLabel(self, text="ID do serviço:").pack()
+        self.servico = ctk.CTkEntry(self, width=250)
+        self.servico.pack(pady=5)
 
-          self.txt_nome.delete(0, 'end')
-          self.txt_tel.delete(0, 'end')
+        ctk.CTkButton(
+            self,
+            text="Cadastrar",
+            command=self.cadastrar
+        ).pack(pady=(5, 20))
 
-       except ValueError as erro_validacao:
-           messagebox.showwarning("aviso", str(erro_validacao))
-       except Exception as erro_banco:
-           messagebox.showerror("erro", f"não consegui conectar ao MySQL: {str(erro_banco)}")
+        ctk.CTkLabel(self, text="ID do cliente:").pack(pady=5)
+        self.id = ctk.CTkEntry(self, width=250)
+        self.id.pack(pady=5)
+
+        ctk.CTkButton(self, text="Alterar", command=self.alterar).pack(pady=5)
+        ctk.CTkButton(self, text="Excluir", command=self.excluir).pack(pady=5)
+        ctk.CTkButton(self, text="Atualizar lista", command=self.listar_clientes).pack(pady=5)
+
+        self.tabela = ttk.Treeview(
+            self,
+            columns=("id", "nome", "telefone", "servico", "data"),
+            show="headings"
+        )
+
+        self.tabela.heading("id", text="ID")
+        self.tabela.heading("nome", text="Nome")
+        self.tabela.heading("telefone", text="Telefone")
+        self.tabela.heading("servico", text="Serviço")
+        self.tabela.heading("data", text="Data")
+
+        self.tabela.pack(fill="both", expand=True, padx=10, pady=10)
+
+    def cadastrar(self):
+        nome = self.nome.get()
+        telefone = self.telefone.get()
+        servico = self.servico.get()
+
+        try:
+            self.controller.cadastrar_novo_cliente(nome, telefone, servico)
+
+            messagebox.showinfo("Sucesso", "Cliente cadastrado!")
+
+            self.limpar()
+            self.listar_clientes()
+
+        except Exception as erro:
+            messagebox.showerror("Erro", str(erro))
+
+    def listar_clientes(self):
+        for item in self.tabela.get_children():
+            self.tabela.delete(item)
+
+        try:
+            clientes = self.controller.listar_clientes()
+
+            for cliente in clientes:
+                self.tabela.insert("", "end", values=cliente[:5])
+
+        except Exception as erro:
+            messagebox.showerror("Erro", str(erro))
+
+    def alterar(self):
+        id_cliente = self.id.get()
+        nome = self.nome.get()
+        telefone = self.telefone.get()
+        servico = self.servico.get()
+
+        if not id_cliente.isdigit():
+            messagebox.showwarning("Atenção", "Digite um ID válido.")
+            return
+
+        try:
+            resultado = self.controller.alterar_cliente(
+                id_cliente, nome, telefone, servico
+            )
+
+            if resultado == 0:
+                messagebox.showwarning("Atenção", "Cliente não encontrado.")
+            else:
+                messagebox.showinfo("Sucesso", "Cliente alterado!")
+                self.limpar()
+                self.listar_clientes()
+
+        except Exception as erro:
+            messagebox.showerror("Erro", str(erro))
+
+    def excluir(self):
+        id_cliente = self.id.get()
+
+        if not id_cliente.isdigit():
+            messagebox.showwarning("Atenção", "Digite um ID válido.")
+            return
+
+        resposta = messagebox.askyesno("Excluir", "Deseja excluir esse cliente?")
+
+        if resposta:
+            try:
+                resultado = self.controller.excluir_cliente(id_cliente)
+
+                if resultado == 0:
+                    messagebox.showwarning("Atenção", "Cliente não encontrado.")
+                else:
+                    messagebox.showinfo("Sucesso", "Cliente excluído!")
+                    self.limpar()
+                    self.listar_clientes()
+
+            except Exception as erro:
+                messagebox.showerror("Erro", str(erro))
+
+    def limpar(self):
+        self.id.delete(0, "end")
+        self.nome.delete(0, "end")
+        self.telefone.delete(0, "end")
+        self.servico.delete(0, "end")
+
+
+if __name__ == "__main__":
+    app = ClienteView()
+    app.mainloop()
+
