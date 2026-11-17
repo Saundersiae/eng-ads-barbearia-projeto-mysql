@@ -30,7 +30,7 @@ class ClienteView(ctk.CTk):
        telefone = self.txt_tel.get()
 
        try:
-          self.controller.cadastrar_novo_cliente(nome, telefone)
+          self.controller.cadastrar_novo_cliente(nome, telefone, servicos_id=1)
           messagebox.showinfo("sucesso!", "Cliente Cadastrado no banco da barbearia!")
 
           self.txt_nome.delete(0, 'end')
