@@ -2,8 +2,8 @@ import mysql.connector
 
 def conectar():
     return mysql.connector.connect(
-        host="host",
+        host="seu host",
         user="root",
-        password="1234s",
+        password="sua senha",
         database="barbearia"
     )
