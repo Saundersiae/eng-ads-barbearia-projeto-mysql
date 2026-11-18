@@ -7,12 +7,10 @@ class ClienteView(ctk.CTk):
 
     def __init__(self):
         super().__init__()
-
         self.controller = ClienteController()
         self.title("Gerenciamento da Barbearia")
         self.geometry("900x850")
         ctk.set_appearance_mode("dark")
-
         self.criar_tela()
         self.listar_clientes()
 
@@ -43,8 +41,17 @@ class ClienteView(ctk.CTk):
         self.telefone = ctk.CTkEntry(cadastro, width=250)
         self.telefone.pack(pady=5)
 
-        ctk.CTkLabel(cadastro, text="ID do serviço:").pack()
-        self.servico = ctk.CTkEntry(cadastro, width=250)
+        ctk.CTkLabel(cadastro, text="Serviço:").pack()
+        self.servico = ctk.CTkComboBox(
+            cadastro,
+            values=[
+                "1 - Corte Masculino",
+                "2 - Barba",
+                "3 - Corte e Barba",
+                "4 - Sobrancelha"
+            ],
+            width=250
+        )
         self.servico.pack(pady=5)
 
         ctk.CTkButton(
@@ -105,7 +112,6 @@ class ClienteView(ctk.CTk):
         self.tabela.heading("telefone", text="Telefone")
         self.tabela.heading("servico", text="Serviço")
         self.tabela.heading("data", text="Data")
-
         self.tabela.pack(
             fill="both",
             expand=True,
@@ -116,80 +122,105 @@ class ClienteView(ctk.CTk):
     def cadastrar(self):
         nome = self.nome.get()
         telefone = self.telefone.get()
-        servico = self.servico.get()
-
+        servico = self.servico.get().split(" - ")[0]
         try:
             self.controller.cadastrar_novo_cliente(
                 nome, telefone, servico
             )
-            messagebox.showinfo("Sucesso", "Cliente cadastrado!")
+            messagebox.showinfo(
+                "Sucesso",
+                "Cliente cadastrado!"
+            )
             self.limpar()
             self.listar_clientes()
         except Exception as erro:
             messagebox.showerror("Erro", str(erro))
 
+    # Listar clientes
     def listar_clientes(self):
         for item in self.tabela.get_children():
             self.tabela.delete(item)
-
         try:
             clientes = self.controller.listar_clientes()
             for cliente in clientes:
-                self.tabela.insert("", "end", values=cliente[:5])
+                self.tabela.insert(
+                    "",
+                    "end",
+                    values=cliente[:5]
+                )
         except Exception as erro:
             messagebox.showerror("Erro", str(erro))
 
+    # Alterar cliente
     def alterar(self):
         id_cliente = self.id.get()
         nome = self.nome.get()
         telefone = self.telefone.get()
-        servico = self.servico.get()
-
+        servico = self.servico.get().split(" - ")[0]
         if not id_cliente.isdigit():
-            messagebox.showwarning("Atenção", "Digite um ID válido.")
+            messagebox.showwarning(
+                "Atenção",
+                "Digite um ID válido."
+            )
             return
-
         try:
             resultado = self.controller.alterar_cliente(
                 id_cliente, nome, telefone, servico
             )
             if resultado == 0:
-                messagebox.showwarning("Atenção", "Cliente não encontrado.")
+                messagebox.showwarning(
+                    "Atenção",
+                    "Cliente não encontrado."
+                )
             else:
-                messagebox.showinfo("Sucesso", "Cliente alterado!")
+                messagebox.showinfo(
+                    "Sucesso",
+                    "Cliente alterado!"
+                )
                 self.limpar()
                 self.listar_clientes()
         except Exception as erro:
             messagebox.showerror("Erro", str(erro))
 
+    # Excluir cliente
     def excluir(self):
         id_cliente = self.id.get()
-
         if not id_cliente.isdigit():
-            messagebox.showwarning("Atenção", "Digite um ID válido.")
+            messagebox.showwarning(
+                "Atenção",
+                "Digite um ID válido."
+            )
             return
-
         resposta = messagebox.askyesno(
             "Excluir",
             "Deseja excluir esse cliente?"
         )
         if resposta:
             try:
-                resultado = self.controller.excluir_cliente(id_cliente)
+                resultado = self.controller.excluir_cliente(
+                    id_cliente
+                )
                 if resultado == 0:
-                    messagebox.showwarning("Atenção", "Cliente não encontrado.")
+                    messagebox.showwarning(
+                        "Atenção",
+                        "Cliente não encontrado."
+                    )
                 else:
-                    messagebox.showinfo("Sucesso", "Cliente excluído!")
+                    messagebox.showinfo(
+                        "Sucesso",
+                        "Cliente excluído!"
+                    )
                     self.limpar()
                     self.listar_clientes()
             except Exception as erro:
                 messagebox.showerror("Erro", str(erro))
 
+    # para limpar campos
     def limpar(self):
         self.id.delete(0, "end")
         self.nome.delete(0, "end")
         self.telefone.delete(0, "end")
-        self.servico.delete(0, "end")
+        self.servico.set("")
 
 
 if __name__ == "__main__":
